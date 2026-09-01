@@ -44,6 +44,16 @@ final class AudioPlayer {
     /// Gate for incoming audio. A network stream keeps delivering for a while
     /// after a stop, and every delivery would otherwise restart the engine.
     private var accepting = false
+    /// False until enough audio has arrived to start playing without underrunning.
+    private var hasStartedPlayback = false
+
+    /// How much audio to bank before the first sound.
+    ///
+    /// Chunks arrive in ~0.2 s pieces, so starting on the first one leaves the
+    /// queue empty the moment network jitter delays the next: the node runs dry
+    /// and the opening words stutter. Half a second of lead costs a barely
+    /// perceptible delay and covers the gaps between deliveries.
+    private let prerollFrames = 12_000   // 0.5 s at 24 kHz
 
     /// Called on the main queue once the whole stream has played out.
     var onFinishedPlaying: (() -> Void)?
@@ -82,19 +92,22 @@ final class AudioPlayer {
     }
 
     /// Clears any previous audio and opens the gate for a new stream.
+    ///
+    /// Playback deliberately does not start here — it waits for `prerollFrames`
+    /// to accumulate in `enqueue`.
     func begin() {
         reset()
         lock.lock()
         accepting = true
         lock.unlock()
         start()
-        player.play()
     }
 
     func resume() {
         start()
         lock.lock()
         frozenFrame = nil
+        hasStartedPlayback = true
         lock.unlock()
         player.play()
     }
@@ -120,6 +133,7 @@ final class AudioPlayer {
         streamFinished = false
         frozenFrame = nil
         accepting = false
+        hasStartedPlayback = false
         lock.unlock()
 
         player.stop()
@@ -150,6 +164,7 @@ final class AudioPlayer {
         scheduledFrames = target
         pending = 0
         frozenFrame = wasPlaying ? nil : target
+        hasStartedPlayback = wasPlaying
         lock.unlock()
 
         // stop() discards scheduled buffers and resets the node's sample clock,
@@ -174,12 +189,27 @@ final class AudioPlayer {
 
         start()
         scheduleTail()
-        if !player.isPlaying, frozenFrame == nil { player.play() }
+
+        lock.lock()
+        let buffered = pcm.count / 2
+        let shouldStart = !hasStartedPlayback && buffered >= prerollFrames
+        if shouldStart { hasStartedPlayback = true }
+        let paused = frozenFrame != nil
+        lock.unlock()
+
+        if shouldStart, !paused { player.play() }
     }
 
     /// Signals that no more audio is coming, so the end of the buffer is a real
     /// end rather than a stall.
     func finishStreaming() {
+        // A clip shorter than the preroll would otherwise never start.
+        lock.lock()
+        let needsStart = !hasStartedPlayback && pcm.count / 2 > 0 && frozenFrame == nil
+        if needsStart { hasStartedPlayback = true }
+        lock.unlock()
+        if needsStart { player.play() }
+
         lock.lock()
         streamFinished = true
         let done = pending == 0 && scheduledFrames == pcm.count / 2
