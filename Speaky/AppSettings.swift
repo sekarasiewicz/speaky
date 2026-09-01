@@ -20,7 +20,17 @@ final class AppSettings: ObservableObject {
     }
     /// Playback rate multiplier applied locally, 0.5...2.0.
     @Published var rate: Double {
-        didSet { defaults.set(rate, forKey: "rate") }
+        didSet {
+            defaults.set(rate, forKey: "rate")
+            onRateChange?(rate)
+        }
+    }
+    /// Pushes a rate change to whatever is playing right now. Without it the
+    /// slider only takes effect on the next thing read.
+    var onRateChange: ((Double) -> Void)?
+    /// Strip markup, links and terminal noise before speaking.
+    @Published var cleanUpText: Bool {
+        didSet { defaults.set(cleanUpText, forKey: "cleanUpText") }
     }
     /// How far ⌥⌘← / ⌥⌘→ jump, in seconds.
     @Published var skipSeconds: Double {
@@ -43,6 +53,7 @@ final class AppSettings: ObservableObject {
         voice = Voice(rawValue: defaults.string(forKey: "voice") ?? "") ?? .coral
         rate = defaults.object(forKey: "rate") as? Double ?? 1.0
         skipSeconds = defaults.object(forKey: "skipSeconds") as? Double ?? 10
+        cleanUpText = defaults.object(forKey: "cleanUpText") as? Bool ?? true
         // Bindings saved before the default moved off Option are discarded once,
         // so an existing install picks up the new, safer combinations.
         let storedVersion = defaults.integer(forKey: "combosVersion")

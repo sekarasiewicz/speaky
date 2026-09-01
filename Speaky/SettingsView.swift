@@ -111,6 +111,13 @@ private struct VoiceSettings: View {
                 }
             }
 
+            Section("Text") {
+                Toggle("Clean up before reading", isOn: $settings.cleanUpText)
+                Text("Strips Markdown, quoting, box drawing and shell prompts, and reads a URL as its host rather than character by character. Falls back to the original if the rules would remove most of the text.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
             Section("Model instructions") {
                 TextEditor(text: $settings.instructions)
                     .font(.body)

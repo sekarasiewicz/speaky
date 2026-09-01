@@ -29,6 +29,9 @@ final class SpeakyController: ObservableObject {
     private var ticker: Timer?
 
     private init() {
+        settings.onRateChange = { [weak player] rate in
+            player?.rate = Float(rate)
+        }
         player.onFinishedPlaying = { [weak self] in
             guard let self, self.state.isActive else { return }
             self.finish()
@@ -86,7 +89,13 @@ final class SpeakyController: ObservableObject {
         speak(text)
     }
 
-    func speak(_ text: String) {
+    func speak(_ rawText: String) {
+        let text = settings.cleanUpText ? TextCleaner.clean(rawText) : rawText
+        guard !text.isEmpty else {
+            state = .error("Nothing to read after cleaning up the text.")
+            return
+        }
+
         stop()
         lastText = text
         state = .working
