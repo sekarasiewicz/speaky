@@ -7,9 +7,9 @@ enum SpeechError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .missingKey:
-            return "Brak klucza OpenAI. Wklej go w Ustawieniach."
+            return "No OpenAI key. Paste one in Settings."
         case let .http(status, body):
-            return "OpenAI zwróciło \(status): \(body)"
+            return "OpenAI returned \(status): \(body)"
         }
     }
 }

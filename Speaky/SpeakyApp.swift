@@ -75,32 +75,32 @@ struct MenuContent: View {
             Text(message)
             Divider()
         case .working:
-            Text("Czytam \(timecode)")
+            Text("Reading \(timecode)")
             Divider()
         case .paused:
-            Text("Wstrzymane \(timecode)")
+            Text("Paused \(timecode)")
             Divider()
         case .idle:
             EmptyView()
         }
 
-        Button("Czytaj zaznaczenie\(key(.speak))") { controller.speakSelection() }
-        Button("Czytaj schowek") { controller.speakClipboard() }
+        Button("Read selection\(key(.speak))") { controller.speakSelection() }
+        Button("Read clipboard") { controller.speakClipboard() }
 
         if controller.state.isActive {
             Divider()
-            Button(controller.state == .paused ? "Wznów\(key(.playPause))" : "Pauza\(key(.playPause))") {
+            Button(controller.state == .paused ? "Resume\(key(.playPause))" : "Pause\(key(.playPause))") {
                 controller.togglePause()
             }
-            Button("Cofnij \(seconds)s\(key(.back))") { controller.skip(backwards: true) }
-            Button("Do przodu \(seconds)s\(key(.forward))") { controller.skip(backwards: false) }
+            Button("Back \(seconds)s\(key(.back))") { controller.skip(backwards: true) }
+            Button("Forward \(seconds)s\(key(.forward))") { controller.skip(backwards: false) }
             Button("Stop") { controller.stop() }
         }
 
         Divider()
-        Button("Ustawienia…") { SettingsWindow.open(openSettings) }
+        Button("Settings…") { SettingsWindow.open(openSettings) }
             .keyboardShortcut(",")
-        Button("Zakończ") { NSApplication.shared.terminate(nil) }
+        Button("Quit") { NSApplication.shared.terminate(nil) }
             .keyboardShortcut("q")
     }
 }

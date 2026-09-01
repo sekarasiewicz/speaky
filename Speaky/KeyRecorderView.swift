@@ -73,7 +73,7 @@ struct KeyRecorder: NSViewRepresentable {
             (recording ? NSColor.controlAccentColor : NSColor.separatorColor).setStroke()
             path.stroke()
 
-            let text = recording ? "Naciśnij…" : combo.display
+            let text = recording ? "Press keys…" : combo.display
             let attributes: [NSAttributedString.Key: Any] = [
                 .font: NSFont.systemFont(ofSize: 12),
                 .foregroundColor: recording ? NSColor.secondaryLabelColor : NSColor.labelColor,

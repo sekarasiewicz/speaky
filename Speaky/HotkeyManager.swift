@@ -22,10 +22,10 @@ final class HotkeyManager {
 
         var title: String {
             switch self {
-            case .speak:     return "Czytaj zaznaczenie / stop"
-            case .playPause: return "Pauza / wznów"
-            case .back:      return "Cofnij"
-            case .forward:   return "Do przodu"
+            case .speak:     return "Read selection / stop"
+            case .playPause: return "Pause / resume"
+            case .back:      return "Skip back"
+            case .forward:   return "Skip forward"
             }
         }
 

@@ -63,7 +63,7 @@ final class AppSettings: ObservableObject {
         combos = loaded
 
         instructions = defaults.string(forKey: "instructions")
-            ?? "Read the text in its original language with a natural, calm, conversational delivery. If the text is Polish, use native Polish pronunciation without an English accent."
+            ?? "Read the text in its original language with a natural, calm, conversational delivery. Use that language's native pronunciation rather than an English accent."
     }
 
     private func persistCombos() {

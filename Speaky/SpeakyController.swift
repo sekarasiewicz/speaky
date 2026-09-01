@@ -80,7 +80,7 @@ final class SpeakyController: ObservableObject {
         guard let text = NSPasteboard.general.string(forType: .string),
               !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         else {
-            state = .error("Schowek jest pusty.")
+            state = .error("The clipboard is empty.")
             return
         }
         speak(text)

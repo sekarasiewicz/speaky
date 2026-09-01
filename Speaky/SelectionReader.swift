@@ -10,11 +10,11 @@ enum SelectionError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .notTrusted:
-            return "Włącz Speaky w Ustawieniach → Prywatność → Dostępność."
+            return "Enable Speaky in System Settings → Privacy & Security → Accessibility."
         case .secureInput(let app):
-            return "\(app) ma włączone Secure Keyboard Entry — odłącza przechwytywanie klawiszy."
+            return "\(app) has Secure Keyboard Entry on, which blocks key capture."
         case .empty:
-            return "Nie znaleziono zaznaczonego tekstu."
+            return "No selected text found."
         }
     }
 }
@@ -54,7 +54,7 @@ enum SelectionReader {
     }
 
     static var frontmostAppName: String {
-        frontmostApp?.localizedName ?? "Aplikacja na wierzchu"
+        frontmostApp?.localizedName ?? "The frontmost app"
     }
 
     static func currentSelection() throws -> String {
