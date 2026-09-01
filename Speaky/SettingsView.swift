@@ -202,9 +202,26 @@ private struct ShortcutSettings: View {
 
 private struct DiagnosticsSettings: View {
     @State private var loggingEnabled = CaptureLog.isEnabled
+    @State private var cacheSize = 0
+
+    private var formattedCacheSize: String {
+        ByteCountFormatter.string(fromByteCount: Int64(cacheSize), countStyle: .file)
+    }
 
     var body: some View {
         Form {
+            Section("Audio cache") {
+                LabeledContent("Stored", value: formattedCacheSize)
+                Button("Clear cache") {
+                    AudioCache.shared.clear()
+                    cacheSize = AudioCache.shared.size
+                }
+                .disabled(cacheSize == 0)
+                Text("Generated speech is kept per chunk, so replaying something already read costs nothing and starts instantly. Evicted least-recently-used above 200 MB.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
             Section {
                 Toggle("Trace selection capture", isOn: $loggingEnabled)
                     .onChange(of: loggingEnabled) { _, value in
@@ -237,5 +254,6 @@ private struct DiagnosticsSettings: View {
             }
         }
         .formStyle(.grouped)
+        .task { cacheSize = AudioCache.shared.size }
     }
 }

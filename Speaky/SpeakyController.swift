@@ -115,14 +115,32 @@ final class SpeakyController: ObservableObject {
                 // stays fed while chunk order is guaranteed.
                 for piece in pieces {
                     try Task.checkCancellation()
+
+                    let cacheKey = AudioCache.shared.key(
+                        text: piece,
+                        voice: voice,
+                        instructions: instructions,
+                        model: SpeechStreamer.model
+                    )
+
+                    if let cached = AudioCache.shared.load(cacheKey) {
+                        player.enqueue(cached)
+                        continue
+                    }
+
+                    // Collected as it streams, then stored whole. A cancelled
+                    // request must not leave a truncated chunk in the cache.
+                    var generated = Data()
                     try await streamer.speak(
                         text: piece,
                         voice: voice,
                         instructions: instructions,
                         apiKey: key
                     ) { data in
+                        generated.append(data)
                         player.enqueue(data)
                     }
+                    AudioCache.shared.store(cacheKey, data: generated)
                 }
                 player.finishStreaming()
             } catch is CancellationError {

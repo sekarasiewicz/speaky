@@ -17,7 +17,7 @@ enum SpeechError: LocalizedError {
 /// Calls the OpenAI speech endpoint and hands back PCM bytes as they arrive.
 struct SpeechStreamer {
     private let endpoint = URL(string: "https://api.openai.com/v1/audio/speech")!
-    private let model = "gpt-4o-mini-tts"
+    static let model = "gpt-4o-mini-tts"
 
     /// Streams one chunk of text. `onData` is invoked repeatedly on a
     /// background task as bytes come off the socket.
@@ -37,7 +37,7 @@ struct SpeechStreamer {
         request.timeoutInterval = 60
 
         let body: [String: Any] = [
-            "model": model,
+            "model": Self.model,
             "voice": voice.rawValue,
             "input": text,
             "instructions": instructions,
