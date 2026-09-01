@@ -111,6 +111,12 @@ triangle, which means another app owns the combination.
 iTerm2 — macOS blocks both synthetic key events and other apps' global hotkeys.
 Settings → Diagnostics warns when it is currently active.
 
+## Tests
+
+```sh
+xcodebuild test -project Speaky.xcodeproj -scheme Speaky -destination 'platform=macOS'
+```
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). Bug reports about a specific app are

@@ -6,11 +6,27 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		AA000001000000000000000B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C208108C3046E885001B6054 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C20810933046E885001B6054;
+			remoteInfo = Speaky;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		AA0000010000000000000003 /* SpeakyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SpeakyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C20810943046E885001B6054 /* Speaky.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Speaky.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		AA0000010000000000000002 /* SpeakyTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = SpeakyTests;
+			sourceTree = "<group>";
+		};
 		C20810963046E885001B6054 /* Speaky */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Speaky;
@@ -19,6 +35,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		AA0000010000000000000005 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C20810913046E885001B6054 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -33,6 +56,7 @@
 			isa = PBXGroup;
 			children = (
 				C20810963046E885001B6054 /* Speaky */,
+				AA0000010000000000000002 /* SpeakyTests */,
 				C20810953046E885001B6054 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,6 +65,7 @@
 			isa = PBXGroup;
 			children = (
 				C20810943046E885001B6054 /* Speaky.app */,
+				AA0000010000000000000003 /* SpeakyTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -48,6 +73,27 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		AA0000010000000000000001 /* SpeakyTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA0000010000000000000007 /* Build configuration list for PBXNativeTarget "SpeakyTests" */;
+			buildPhases = (
+				AA0000010000000000000004 /* Sources */,
+				AA0000010000000000000005 /* Frameworks */,
+				AA0000010000000000000006 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AA000001000000000000000A /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				AA0000010000000000000002 /* SpeakyTests */,
+			);
+			name = SpeakyTests;
+			productName = SpeakyTests;
+			productReference = AA0000010000000000000003 /* SpeakyTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		C20810933046E885001B6054 /* Speaky */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = C208109F3046E886001B6054 /* Build configuration list for PBXNativeTarget "Speaky" */;
@@ -100,11 +146,19 @@
 			projectRoot = "";
 			targets = (
 				C20810933046E885001B6054 /* Speaky */,
+				AA0000010000000000000001 /* SpeakyTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		AA0000010000000000000006 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C20810923046E885001B6054 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -115,6 +169,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		AA0000010000000000000004 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C20810903046E885001B6054 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -124,7 +185,49 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		AA000001000000000000000A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C20810933046E885001B6054 /* Speaky */;
+			targetProxy = AA000001000000000000000B /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		AA0000010000000000000008 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = GM2CG6S626;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.5;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.karasiewicz.SpeakyTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Speaky.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Speaky";
+			};
+			name = Debug;
+		};
+		AA0000010000000000000009 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = GM2CG6S626;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.5;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.karasiewicz.SpeakyTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Speaky.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Speaky";
+			};
+			name = Release;
+		};
 		C208109D3046E886001B6054 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -314,6 +417,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		AA0000010000000000000007 /* Build configuration list for PBXNativeTarget "SpeakyTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA0000010000000000000008 /* Debug */,
+				AA0000010000000000000009 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		C208108F3046E885001B6054 /* Build configuration list for PBXProject "Speaky" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

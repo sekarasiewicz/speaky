@@ -13,6 +13,22 @@ Accessibility permission is tied to the code signature and path. Set a
 Development Team in Signing & Capabilities so the grant survives rebuilds;
 without one, macOS re-signs ad-hoc on every build and the permission is dropped.
 
+## Tests
+
+```sh
+xcodebuild test -project Speaky.xcodeproj -scheme Speaky -destination 'platform=macOS'
+```
+
+Or ⌘U in Xcode. The suite covers the pure logic — text cleanup, chunking and
+cache keys — which is where a silent regression is most likely: all three fail
+by producing *plausible* output rather than by crashing.
+
+Two of the existing cases exist because the bug they catch was invisible. A
+character class written with Swift's `\u{...}` escapes inside a raw string
+reaches ICU as a literal and never matches, and the regex still compiles. A
+quote-stripping pattern that matches only consecutive `>` leaves nested mail
+quotes behind.
+
 ## Adding support for an app that reads as silent
 
 Selection capture has four tiers in `SelectionReader.swift`, tried in order.
