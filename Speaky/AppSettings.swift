@@ -28,6 +28,10 @@ final class AppSettings: ObservableObject {
     /// Pushes a rate change to whatever is playing right now. Without it the
     /// slider only takes effect on the next thing read.
     var onRateChange: ((Double) -> Void)?
+    /// Ask before generating more than this many characters. Zero disables it.
+    @Published var confirmAboveCharacters: Int {
+        didSet { defaults.set(confirmAboveCharacters, forKey: "confirmAboveCharacters") }
+    }
     /// Strip markup, links and terminal noise before speaking.
     @Published var cleanUpText: Bool {
         didSet { defaults.set(cleanUpText, forKey: "cleanUpText") }
@@ -54,6 +58,7 @@ final class AppSettings: ObservableObject {
         rate = defaults.object(forKey: "rate") as? Double ?? 1.0
         skipSeconds = defaults.object(forKey: "skipSeconds") as? Double ?? 10
         cleanUpText = defaults.object(forKey: "cleanUpText") as? Bool ?? true
+        confirmAboveCharacters = defaults.object(forKey: "confirmAboveCharacters") as? Int ?? 5_000
         // Bindings saved before the default moved off Option are discarded once,
         // so an existing install picks up the new, safer combinations.
         let storedVersion = defaults.integer(forKey: "combosVersion")

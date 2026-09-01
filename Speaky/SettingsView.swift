@@ -86,6 +86,15 @@ private struct GeneralSettings: View {
 
 private struct VoiceSettings: View {
     @EnvironmentObject private var settings: AppSettings
+    @State private var usageRefresh = 0
+
+    private var usageSummary: String {
+        _ = usageRefresh   // recompute after a reset
+        let characters = UsageTracker.characters
+        let since = UsageTracker.since.formatted(date: .abbreviated, time: .omitted)
+        return String(format: "%@ chars ≈ $%.2f since %@",
+                      characters.formatted(), UsageTracker.estimatedDollars, since)
+    }
 
     var body: some View {
         Form {
@@ -109,6 +118,27 @@ private struct VoiceSettings: View {
                         "Hello. This is how the selected voice sounds with the current settings."
                     )
                 }
+            }
+
+            Section("Spending") {
+                Picker("Confirm above", selection: $settings.confirmAboveCharacters) {
+                    Text("Never").tag(0)
+                    Text("2 000 characters").tag(2_000)
+                    Text("5 000 characters").tag(5_000)
+                    Text("20 000 characters").tag(20_000)
+                }
+
+                LabeledContent("Generated") {
+                    Text(usageSummary)
+                        .monospacedDigit()
+                }
+                Button("Reset counter") {
+                    UsageTracker.reset()
+                    usageRefresh &+= 1
+                }
+                Text("Counts only characters actually sent to OpenAI — cached audio is free and not counted. Cost is an estimate at $\(UsageTracker.dollarsPerThousandCharacters, specifier: "%.3f") per 1000 characters.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
 
             Section("Text") {

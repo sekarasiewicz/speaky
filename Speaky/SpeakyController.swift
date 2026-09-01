@@ -96,6 +96,18 @@ final class SpeakyController: ObservableObject {
             return
         }
 
+        let voice = settings.voice
+        let instructions = settings.instructions
+        let key = settings.apiKey
+        let pieces = TextChunker.chunks(text)
+
+        // Only uncached chunks reach the API, so only those cost anything.
+        let billable = pieces
+            .filter { AudioCache.shared.load(cacheKey(for: $0, voice: voice, instructions: instructions)) == nil }
+            .reduce(0) { $0 + $1.count }
+
+        guard confirmIfExpensive(characters: billable) else { return }
+
         stop()
         lastText = text
         state = .working
@@ -104,10 +116,7 @@ final class SpeakyController: ObservableObject {
         player.begin()
         startTicker()
 
-        let voice = settings.voice
-        let instructions = settings.instructions
-        let key = settings.apiKey
-        let pieces = TextChunker.chunks(text)
+        UsageTracker.record(characters: billable)
 
         task = Task { [player, streamer] in
             do {
@@ -153,6 +162,37 @@ final class SpeakyController: ObservableObject {
                 }
             }
         }
+    }
+
+    private func cacheKey(for piece: String, voice: Voice, instructions: String) -> String {
+        AudioCache.shared.key(
+            text: piece,
+            voice: voice,
+            instructions: instructions,
+            model: SpeechStreamer.model
+        )
+    }
+
+    /// Guards against an accidental Select All turning into a large bill.
+    /// Returns false when the user declines.
+    private func confirmIfExpensive(characters: Int) -> Bool {
+        let threshold = settings.confirmAboveCharacters
+        guard threshold > 0, characters > threshold else { return true }
+
+        let cost = Double(characters) / 1000 * UsageTracker.dollarsPerThousandCharacters
+
+        let alert = NSAlert()
+        alert.messageText = "Read \(characters.formatted()) characters?"
+        alert.informativeText = String(
+            format: "That is about $%.2f of speech. Cached parts are free and not counted.",
+            cost
+        )
+        alert.addButton(withTitle: "Read")
+        alert.addButton(withTitle: "Cancel")
+        alert.alertStyle = .warning
+
+        NSApp.activate()
+        return alert.runModal() == .alertFirstButtonReturn
     }
 
     // MARK: - Transport
