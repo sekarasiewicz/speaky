@@ -3,6 +3,7 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject private var settings: AppSettings
     @ObservedObject private var controller = SpeakyController.shared
+    @State private var loggingEnabled = CaptureLog.isEnabled
 
     /// Writing through the dictionary re-registers, so a freed combination
     /// takes effect without a relaunch.
@@ -114,6 +115,24 @@ struct SettingsView: View {
                 }
             }
         }
+            Section("Diagnostyka") {
+                Toggle("Zapisuj log odczytu zaznaczenia", isOn: $loggingEnabled)
+                    .onChange(of: loggingEnabled) { _, value in
+                        CaptureLog.isEnabled = value
+                    }
+                Text("Zapisuje do ~/Library/Logs/Speaky/capture.log, co zwrócił każdy z czterech poziomów odczytu. Włącz, gdy w którejś aplikacji nic się nie dzieje.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                HStack {
+                    Button("Pokaż log") {
+                        NSWorkspace.shared.activateFileViewerSelecting([CaptureLog.url])
+                    }
+                    .disabled(!FileManager.default.fileExists(atPath: CaptureLog.url.path))
+
+                    Button("Wyczyść log") { CaptureLog.clear() }
+                }
+            }
         .formStyle(.grouped)
         .frame(width: 420)
         .fixedSize(horizontal: false, vertical: true)

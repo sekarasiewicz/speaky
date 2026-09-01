@@ -67,7 +67,11 @@ it does not exist yet.
 
 ## Troubleshooting
 
-Capture attempts are traced to `~/Library/Logs/Speaky/capture.log`, recording
-what each tier saw. Selection grabbing fails silently by nature — every tier
-just returns nothing — so the log is the only way to tell a missing selection
-from a wrong target app from a refused copy.
+Turn on **Zapisuj log odczytu zaznaczenia** in Settings and capture attempts are
+traced to `~/Library/Logs/Speaky/capture.log`, recording what each tier saw.
+Selection grabbing fails silently by nature — every tier just returns nothing —
+so the log is the only way to tell a missing selection from a wrong target app
+from a refused copy.
+
+It is off by default: it writes on every hotkey press and records the length of
+whatever the user had selected.

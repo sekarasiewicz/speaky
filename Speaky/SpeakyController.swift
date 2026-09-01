@@ -181,7 +181,10 @@ final class SpeakyController: ObservableObject {
     private func startTicker() {
         stopTicker()
         ticker = Timer.scheduledTimer(withTimeInterval: 0.25, repeats: true) { [weak self] _ in
-            Task { @MainActor in self?.tick() }
+            // Resolved outside the task: capturing the optional itself would
+            // carry a mutable reference across the concurrency boundary.
+            guard let self else { return }
+            Task { @MainActor in self.tick() }
         }
     }
 

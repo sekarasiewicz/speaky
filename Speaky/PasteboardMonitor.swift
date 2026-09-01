@@ -54,10 +54,19 @@ final class PasteboardMonitor {
         lastChange = Date()
     }
 
-    /// The remembered text, but only if this very app put it there.
+    /// How long a copy still counts as "the current selection".
+    ///
+    /// Without a bound, a selection made in the same app an hour ago would be
+    /// read back as if it were current. Generous enough to cover selecting text
+    /// and getting distracted, short enough that it cannot be stale by surprise.
+    static let maxAge: TimeInterval = 5 * 60
+
+    /// The remembered text, but only if this very app put it there recently.
     func selection(from app: NSRunningApplication?) -> String? {
         guard let bundleID = app?.bundleIdentifier,
               bundleID == lastSourceBundleID,
+              let changed = lastChange,
+              Date().timeIntervalSince(changed) < Self.maxAge,
               let text = lastText
         else { return nil }
         return text.trimmingCharacters(in: .whitespacesAndNewlines)
