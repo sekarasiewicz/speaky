@@ -4,6 +4,8 @@ struct SettingsView: View {
     @EnvironmentObject private var settings: AppSettings
     @ObservedObject private var controller = SpeakyController.shared
     @State private var loggingEnabled = CaptureLog.isEnabled
+    @State private var launchAtLogin = LaunchAtLogin.isEnabled
+    @State private var launchError: String?
 
     /// Writing through the dictionary re-registers, so a freed combination
     /// takes effect without a relaunch.
@@ -115,6 +117,35 @@ struct SettingsView: View {
                 }
             }
         }
+            Section("Uruchamianie") {
+                Toggle("Uruchamiaj przy logowaniu", isOn: $launchAtLogin)
+                    .onChange(of: launchAtLogin) { _, value in
+                        if let error = LaunchAtLogin.set(value) {
+                            launchError = error.localizedDescription
+                            launchAtLogin = LaunchAtLogin.isEnabled
+                        } else {
+                            launchError = nil
+                        }
+                    }
+
+                if let launchError {
+                    Text(launchError)
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                } else if LaunchAtLogin.needsApproval {
+                    HStack {
+                        Text("Wymaga zatwierdzenia w Ustawieniach Systemowych.")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                        Button("Otwórz") { LaunchAtLogin.openLoginItemsSettings() }
+                    }
+                } else {
+                    Text("Rejestruje uruchomiony bundle, więc build z Xcode zarejestruje ścieżkę w DerivedData. Włączaj na kopii w /Applications.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
             Section("Diagnostyka") {
                 Toggle("Zapisuj log odczytu zaznaczenia", isOn: $loggingEnabled)
                     .onChange(of: loggingEnabled) { _, value in

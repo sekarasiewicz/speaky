@@ -19,6 +19,16 @@ milliseconds. Works in Mail, Safari, Notes, Office, Electron apps and terminals.
 3. Open Settings from the menu bar icon and paste your OpenAI API key. It is
    stored in the login keychain, never in the app bundle.
 
+## Launch at login
+
+Settings has a **Uruchamiaj przy logowaniu** toggle, backed by `SMAppService`.
+It registers whichever bundle is running, so a build launched from Xcode
+registers its DerivedData path and stops working as soon as that build is
+replaced. Enable it on a copy in `/Applications`.
+
+macOS may list the item as requiring approval; the toggle links straight to the
+Login Items pane when it does.
+
 ## Shortcuts
 
 | Default | Action                     |
