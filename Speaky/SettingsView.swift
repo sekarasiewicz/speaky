@@ -116,7 +116,6 @@ struct SettingsView: View {
                     NSWorkspace.shared.open(url)
                 }
             }
-        }
             Section("Uruchamianie") {
                 Toggle("Uruchamiaj przy logowaniu", isOn: $launchAtLogin)
                     .onChange(of: launchAtLogin) { _, value in
@@ -164,8 +163,10 @@ struct SettingsView: View {
                     Button("Wyczyść log") { CaptureLog.clear() }
                 }
             }
+        }
         .formStyle(.grouped)
-        .frame(width: 420)
-        .fixedSize(horizontal: false, vertical: true)
+        // Fixed width, bounded height: the form has grown past what fits on a
+        // laptop screen, so it scrolls instead of sizing itself to the content.
+        .frame(width: 460, height: 620)
     }
 }
