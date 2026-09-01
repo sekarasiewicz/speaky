@@ -27,6 +27,7 @@ final class SpeakyController: ObservableObject {
     private let settings = AppSettings.shared
     private var task: Task<Void, Never>?
     private var ticker: Timer?
+    private var errorClearTask: Task<Void, Never>?
 
     private init() {
         settings.onRateChange = { [weak player] rate in
@@ -73,9 +74,9 @@ final class SpeakyController: ObservableObject {
             CaptureLog.write("RESULT ok")
         } catch let error as SelectionError {
             if case .notTrusted = error { SelectionReader.requestTrust() }
-            state = .error(error.localizedDescription)
+            fail(error.localizedDescription)
         } catch {
-            state = .error(error.localizedDescription)
+            fail(error.localizedDescription)
         }
     }
 
@@ -83,7 +84,7 @@ final class SpeakyController: ObservableObject {
         guard let text = NSPasteboard.general.string(forType: .string),
               !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         else {
-            state = .error("The clipboard is empty.")
+            fail("The clipboard is empty.")
             return
         }
         speak(text)
@@ -92,7 +93,7 @@ final class SpeakyController: ObservableObject {
     func speak(_ rawText: String) {
         let text = settings.cleanUpText ? TextCleaner.clean(rawText) : rawText
         guard !text.isEmpty else {
-            state = .error("Nothing to read after cleaning up the text.")
+            fail("Nothing to read after cleaning up the text.")
             return
         }
 
@@ -158,7 +159,7 @@ final class SpeakyController: ObservableObject {
                 await MainActor.run {
                     self.player.stop()
                     self.stopTicker()
-                    self.state = .error(error.localizedDescription)
+                    self.fail(error.localizedDescription)
                 }
             }
         }
@@ -193,6 +194,25 @@ final class SpeakyController: ObservableObject {
 
         NSApp.activate()
         return alert.runModal() == .alertFirstButtonReturn
+    }
+
+    /// Errors otherwise only showed inside the menu, which has to be opened to
+    /// be seen — so a failed hotkey press was indistinguishable from a hotkey
+    /// that never fired. An alert beep gives immediate feedback, and the state
+    /// clears itself so the menu bar icon does not stay stuck on a warning.
+    private func fail(_ message: String) {
+        state = .error(message)
+        NSSound.beep()
+
+        errorClearTask?.cancel()
+        errorClearTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(8))
+            guard !Task.isCancelled else { return }
+            await MainActor.run {
+                guard let self, case .error = self.state else { return }
+                self.state = .idle
+            }
+        }
     }
 
     // MARK: - Transport
