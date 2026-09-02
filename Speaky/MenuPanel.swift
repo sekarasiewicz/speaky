@@ -18,20 +18,38 @@ struct MenuPanel: View {
     private var skip: Int { Int(AppSettings.shared.skipSeconds) }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            header
-
-            if controller.state.isActive {
-                transport
-            } else {
-                actions
+        VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: 12) {
+                header
+                if controller.state.isActive { transport }
             }
+            .padding(.horizontal, 14)
+            .padding(.top, 12)
+            .padding(.bottom, controller.state.isActive ? 12 : 8)
 
-            Divider()
-            footer
+            // Rows run edge to edge like a system menu, so they sit outside the
+            // padded block above and carry their own inset.
+            VStack(alignment: .leading, spacing: 0) {
+                MenuRow(title: "Read selection", systemImage: "text.viewfinder", isProminent: true) {
+                    controller.readSelection()
+                }
+                MenuRow(title: "Read clipboard", systemImage: "clipboard", isProminent: true) {
+                    controller.speakClipboard()
+                }
+
+                Divider().padding(.vertical, 5)
+
+                MenuRow(title: "Settings…", systemImage: "gearshape") {
+                    SettingsWindow.open(openSettings)
+                }
+                MenuRow(title: "Quit", systemImage: "power") {
+                    NSApplication.shared.terminate(nil)
+                }
+            }
+            .padding(.horizontal, 5)
+            .padding(.bottom, 6)
         }
-        .padding(14)
-        .frame(width: 300)
+        .frame(width: 280)
     }
 
     // MARK: - Sections
@@ -93,36 +111,6 @@ struct MenuPanel: View {
             .buttonStyle(.bordered)
         }
     }
-
-    private var actions: some View {
-        VStack(spacing: 6) {
-            Button {
-                controller.speakSelection()
-            } label: {
-                Label("Read selection", systemImage: "text.viewfinder")
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            Button {
-                controller.speakClipboard()
-            } label: {
-                Label("Read clipboard", systemImage: "clipboard")
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-        }
-        .buttonStyle(.bordered)
-    }
-
-    private var footer: some View {
-        HStack {
-            Button("Settings…") { SettingsWindow.open(openSettings) }
-            Spacer()
-            Button("Quit") { NSApplication.shared.terminate(nil) }
-        }
-        .buttonStyle(.link)
-        .font(.callout)
-    }
-
-    // MARK: - Status
 
     private var statusText: String {
         switch controller.state {

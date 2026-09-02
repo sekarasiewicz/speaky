@@ -67,7 +67,12 @@ final class SpeakyController: ObservableObject {
             stop()
             return
         }
+        readSelection()
+    }
 
+    /// Reads the selection unconditionally. The panel's row means "read this",
+    /// not "toggle", so it must not stop playback the way the hotkey does.
+    func readSelection() {
         do {
             let text = try SelectionReader.currentSelection()
             speak(text)
