@@ -16,12 +16,22 @@ BUILD_DIR="${TMPDIR:-/tmp}/speaky-release"
 APP="/Applications/Speaky.app"
 
 echo "==> Building Release"
-xcodebuild \
+# -quiet still prints warnings and errors; on failure the log is replayed in
+# full, so a broken build is not hidden behind the quiet flag.
+LOG="$BUILD_DIR/build.log"
+mkdir -p "$BUILD_DIR"
+if ! xcodebuild \
   -project "$PROJECT_DIR/Speaky.xcodeproj" \
   -scheme Speaky \
   -configuration Release \
   -derivedDataPath "$BUILD_DIR" \
-  build
+  -quiet \
+  build > "$LOG" 2>&1
+then
+  echo "Build failed:" >&2
+  cat "$LOG" >&2
+  exit 1
+fi
 
 BUILT="$BUILD_DIR/Build/Products/Release/Speaky.app"
 [ -d "$BUILT" ] || { echo "Build produced no app at $BUILT" >&2; exit 1; }
