@@ -85,9 +85,12 @@ struct MenuPanel: View {
             HStack {
                 Text(timecode(scrubbing ? scrubPosition : controller.position))
                 Spacer()
-                // The far end is what has been generated, not the length of the
-                // text — there is no way to know the latter before it is spoken.
-                Text(timecode(controller.duration))
+                // Projected from the character count until the last chunk
+                // arrives, and marked as such: the true length is not knowable
+                // until the text has actually been spoken.
+                Text(controller.durationIsEstimate
+                     ? "~\(timecode(controller.duration))"
+                     : timecode(controller.duration))
             }
             .font(.caption)
             .monospacedDigit()

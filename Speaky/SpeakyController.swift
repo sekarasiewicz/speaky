@@ -19,6 +19,8 @@ final class SpeakyController: ObservableObject {
     /// Playhead and buffered length, in seconds. Drives the menu readout.
     @Published private(set) var position: TimeInterval = 0
     @Published private(set) var duration: TimeInterval = 0
+    /// True while `duration` is projected rather than measured.
+    @Published private(set) var durationIsEstimate = false
     /// Shortcuts another app already owns, so Settings can flag them.
     @Published private(set) var conflicts: Set<HotkeyManager.Shortcut> = []
 
@@ -27,6 +29,17 @@ final class SpeakyController: ObservableObject {
     private let settings = AppSettings.shared
     private var task: Task<Void, Never>?
     private var ticker: Timer?
+
+    /// Characters in the text being read, and how many have been turned into
+    /// audio so far. Their ratio against the audio produced gives a speaking
+    /// rate measured from this very voice and speed, rather than a guess.
+    private var totalCharacters = 0
+    private var spokenCharacters = 0
+    private var streamComplete = false
+
+    /// Fallback speaking rate until the first chunk lands, in characters per
+    /// second. Roughly what the OpenAI voices produce at 1x.
+    private let assumedCharactersPerSecond = 15.0
     private var errorClearTask: Task<Void, Never>?
 
     private init() {
@@ -124,6 +137,10 @@ final class SpeakyController: ObservableObject {
 
         UsageTracker.record(characters: billable)
 
+        totalCharacters = pieces.reduce(0) { $0 + $1.count }
+        spokenCharacters = 0
+        streamComplete = false
+
         task = Task { [player, streamer] in
             do {
                 // Sequential by design: downloads outrun playback, so the queue
@@ -140,6 +157,7 @@ final class SpeakyController: ObservableObject {
 
                     if let cached = AudioCache.shared.load(cacheKey) {
                         player.enqueue(cached)
+                        await MainActor.run { self.spokenCharacters += piece.count }
                         continue
                     }
 
@@ -156,8 +174,10 @@ final class SpeakyController: ObservableObject {
                         player.enqueue(data)
                     }
                     AudioCache.shared.store(cacheKey, data: generated)
+                    await MainActor.run { self.spokenCharacters += piece.count }
                 }
                 player.finishStreaming()
+                await MainActor.run { self.streamComplete = true }
             } catch is CancellationError {
                 // stop() already reset the state.
             } catch {
@@ -262,6 +282,7 @@ final class SpeakyController: ObservableObject {
 
     private func finish() {
         task = nil
+        streamComplete = false
         stopTicker()
         position = 0
         duration = 0
@@ -287,6 +308,28 @@ final class SpeakyController: ObservableObject {
 
     private func tick() {
         position = player.position
-        duration = player.duration
+        duration = estimatedDuration
+        durationIsEstimate = !streamComplete && totalCharacters > 0
+    }
+
+    /// What the progress bar measures against.
+    ///
+    /// Using the buffered length made the bar misleading: downloads outrun
+    /// playback, so the denominator grew faster than the playhead and the knob
+    /// raced ahead at first, then crawled. Projecting the full length from the
+    /// character count keeps the scale fixed for the whole read.
+    private var estimatedDuration: TimeInterval {
+        let buffered = player.duration
+
+        // Once everything has arrived, the buffer *is* the length.
+        guard !streamComplete, totalCharacters > 0 else { return buffered }
+
+        let secondsPerCharacter = spokenCharacters > 0
+            ? buffered / Double(spokenCharacters)
+            : 1 / assumedCharactersPerSecond
+
+        // Never below what is already buffered, or the playhead could pass the
+        // end of its own scale.
+        return max(buffered, Double(totalCharacters) * secondsPerCharacter)
     }
 }
