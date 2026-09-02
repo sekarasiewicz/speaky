@@ -233,6 +233,7 @@ private struct ShortcutSettings: View {
 private struct DiagnosticsSettings: View {
     @State private var loggingEnabled = CaptureLog.isEnabled
     @State private var cacheSize = 0
+    @State private var otherInstances: [URL] = []
 
     private var formattedCacheSize: String {
         ByteCountFormatter.string(fromByteCount: Int64(cacheSize), countStyle: .file)
@@ -272,6 +273,26 @@ private struct DiagnosticsSettings: View {
                     .foregroundStyle(.secondary)
             }
 
+            if !otherInstances.isEmpty {
+                Section("Other copies running") {
+                    ForEach(otherInstances, id: \.self) { url in
+                        HStack {
+                            Text(url.path)
+                                .font(.caption)
+                                .lineLimit(1)
+                                .truncationMode(.head)
+                            Spacer()
+                            Button("Reveal") {
+                                NSWorkspace.shared.activateFileViewerSelecting([url])
+                            }
+                        }
+                    }
+                    Text("Only one copy can hold the global shortcuts — whichever registered first. If shortcuts do nothing here, quit the other copy.")
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                }
+            }
+
             if SelectionReader.isSecureInputEnabled {
                 Section {
                     Label(
@@ -284,6 +305,9 @@ private struct DiagnosticsSettings: View {
             }
         }
         .formStyle(.grouped)
-        .task { cacheSize = AudioCache.shared.size }
+        .task {
+            cacheSize = AudioCache.shared.size
+            otherInstances = RunningInstances.others()
+        }
     }
 }

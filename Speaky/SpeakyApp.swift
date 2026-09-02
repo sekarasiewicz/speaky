@@ -42,12 +42,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Global hotkeys are claimed by whichever process registers first, so a
     /// leftover copy silently steals them from the new one. Xcode does not kill
     /// the previous run of a windowless app, which makes this easy to hit.
+    ///
+    /// Only a duplicate of *this exact bundle* is terminated. Matching on bundle
+    /// identifier alone also matched the copy in /Applications, so launching a
+    /// debug build silently quit the installed one — and the other way round,
+    /// which looked like the app closing itself for no reason.
     private func terminateOtherInstances() {
-        let others = NSRunningApplication.runningApplications(
-            withBundleIdentifier: Bundle.main.bundleIdentifier ?? ""
-        ).filter { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }
+        let ownPath = Bundle.main.bundleURL.resolvingSymlinksInPath().path
+        let ownPID = ProcessInfo.processInfo.processIdentifier
 
-        for app in others { app.terminate() }
+        let duplicates = NSRunningApplication.runningApplications(
+            withBundleIdentifier: Bundle.main.bundleIdentifier ?? ""
+        ).filter { app in
+            guard app.processIdentifier != ownPID,
+                  let url = app.bundleURL
+            else { return false }
+            return url.resolvingSymlinksInPath().path == ownPath
+        }
+
+        for app in duplicates { app.terminate() }
     }
 }
 
