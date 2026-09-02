@@ -117,6 +117,12 @@ Settings → Diagnostics warns when it is currently active.
 xcodebuild test -project Speaky.xcodeproj -scheme Speaky -destination 'platform=macOS'
 ```
 
+## Roadmap
+
+[ROADMAP.md](ROADMAP.md) records what works, what is knowingly rough, and what
+was deliberately left out — with the reasoning, so it does not have to be
+rediscovered.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). Bug reports about a specific app are
