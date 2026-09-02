@@ -8,9 +8,10 @@ struct SpeakyApp: App {
 
     var body: some Scene {
         MenuBarExtra("Speaky", systemImage: menuIcon) {
-            MenuContent()
+            MenuPanel()
                 .environmentObject(controller)
         }
+        .menuBarExtraStyle(.window)
 
         Settings {
             SettingsView()
@@ -61,59 +62,5 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         for app in duplicates { app.terminate() }
-    }
-}
-
-struct MenuContent: View {
-    @EnvironmentObject private var controller: SpeakyController
-    @Environment(\.openSettings) private var openSettings
-
-    private var seconds: Int { Int(AppSettings.shared.skipSeconds) }
-
-    private func key(_ shortcut: HotkeyManager.Shortcut) -> String {
-        let combo = AppSettings.shared.combos[shortcut] ?? shortcut.fallback
-        return combo.isEmpty ? "" : "  \(combo.display)"
-    }
-
-    private var timecode: String {
-        func mmss(_ t: TimeInterval) -> String {
-            String(format: "%d:%02d", Int(t) / 60, Int(t) % 60)
-        }
-        return "\(mmss(controller.position)) / \(mmss(controller.duration))"
-    }
-
-    var body: some View {
-        switch controller.state {
-        case .error(let message):
-            Text(message)
-            Divider()
-        case .working:
-            Text("Reading \(timecode)")
-            Divider()
-        case .paused:
-            Text("Paused \(timecode)")
-            Divider()
-        case .idle:
-            EmptyView()
-        }
-
-        Button("Read selection\(key(.speak))") { controller.speakSelection() }
-        Button("Read clipboard") { controller.speakClipboard() }
-
-        if controller.state.isActive {
-            Divider()
-            Button(controller.state == .paused ? "Resume\(key(.playPause))" : "Pause\(key(.playPause))") {
-                controller.togglePause()
-            }
-            Button("Back \(seconds)s\(key(.back))") { controller.skip(backwards: true) }
-            Button("Forward \(seconds)s\(key(.forward))") { controller.skip(backwards: false) }
-            Button("Stop") { controller.stop() }
-        }
-
-        Divider()
-        Button("Settings…") { SettingsWindow.open(openSettings) }
-            .keyboardShortcut(",")
-        Button("Quit") { NSApplication.shared.terminate(nil) }
-            .keyboardShortcut("q")
     }
 }
