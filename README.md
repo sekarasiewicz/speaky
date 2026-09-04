@@ -20,7 +20,21 @@ cd speaky
 ./install.sh
 ```
 
-This builds Release, installs to `/Applications` and launches the app. Then:
+This builds Release, installs to `/Applications` and launches the app.
+
+Without Xcode, install the prebuilt app committed in `dist/Speaky.zip`
+(Apple silicon only):
+
+```sh
+./install.sh --prebuilt
+```
+
+It is signed with a development certificate and not notarized. The script
+strips the quarantine attribute before launching; if you unzip it by hand
+instead, run `xattr -dr com.apple.quarantine Speaky.app` first or Gatekeeper
+reports the app as damaged.
+
+Then:
 
 1. Grant Accessibility permission when prompted, and **relaunch** — the
    permission is read at process start, so it does not take effect until then.

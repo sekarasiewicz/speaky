@@ -65,3 +65,15 @@ and the comment is the only record of what breaks without it.
 
 State what you tested and in which apps. Capture behaviour varies enormously
 between apps, and a change that fixes one can silently break another.
+
+## Refreshing the prebuilt app
+
+`dist/Speaky.zip` is the app installed by `./install.sh --prebuilt`. It is not
+rebuilt automatically, so regenerate it after a user-visible change:
+
+```sh
+./install.sh
+ditto -c -k --keepParent /Applications/Speaky.app dist/Speaky.zip
+```
+
+`ditto` keeps the code signature; `zip` does not.
