@@ -13,6 +13,14 @@ Accessibility permission is tied to the code signature and path. Set a
 Development Team in Signing & Capabilities so the grant survives rebuilds;
 without one, macOS re-signs ad-hoc on every build and the permission is dropped.
 
+## Releasing
+
+`./release.sh` builds Release, re-signs with Developer ID, notarizes, and
+writes `dist/Speaky-<version>.dmg`; `./release.sh --publish` also attaches it
+to a GitHub release. It needs a Developer ID Application certificate in the
+keychain and a `notarytool` credential profile; the setup steps are at the top
+of the script. Bump `MARKETING_VERSION` in the project first.
+
 ## Tests
 
 ```sh
