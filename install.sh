@@ -3,8 +3,10 @@
 # Builds Speaky in Release and installs it to /Applications.
 #
 # With --prebuilt, skips the build and installs the app zipped in dist/ instead,
-# so no Xcode is needed. The zip is signed with a development certificate and
-# not notarized, so the quarantine attribute is removed before launch; without
+# so no Xcode is needed. With --remote, downloads that zip from GitHub first,
+# so the script can be piped from curl on a machine with neither Xcode nor a
+# checkout. The zip is signed with a development certificate and not
+# notarized, so the quarantine attribute is removed before launch; without
 # that Gatekeeper reports the app as damaged.
 #
 # A copy in /Applications is what makes "Launch at login" durable: SMAppService
@@ -16,12 +18,22 @@
 
 set -euo pipefail
 
-PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# BASH_SOURCE is empty when the script is piped into bash, hence the fallback.
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd || pwd)"
+ZIP_URL="https://raw.githubusercontent.com/sekarasiewicz/speaky/main/dist/Speaky.zip"
 BUILD_DIR="${TMPDIR:-/tmp}/speaky-release"
 APP="/Applications/Speaky.app"
 
-if [ "${1:-}" = "--prebuilt" ]; then
-  ZIP="$PROJECT_DIR/dist/Speaky.zip"
+MODE="${1:-}"
+if [ "$MODE" = "--remote" ]; then
+  mkdir -p "$BUILD_DIR"
+  ZIP="$BUILD_DIR/Speaky.zip"
+  echo "==> Downloading $ZIP_URL"
+  curl -fsSL -o "$ZIP" "$ZIP_URL"
+  MODE=--prebuilt
+fi
+if [ "$MODE" = "--prebuilt" ]; then
+  ZIP="${ZIP:-$PROJECT_DIR/dist/Speaky.zip}"
   [ -f "$ZIP" ] || { echo "No prebuilt app at $ZIP" >&2; exit 1; }
   echo "==> Unpacking $ZIP"
   rm -rf "$BUILD_DIR/prebuilt" && mkdir -p "$BUILD_DIR/prebuilt"

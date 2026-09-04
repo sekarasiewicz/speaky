@@ -17,9 +17,12 @@ without one, macOS re-signs ad-hoc on every build and the permission is dropped.
 
 `./release.sh` builds Release, re-signs with Developer ID, notarizes, and
 writes `dist/Speaky-<version>.dmg`; `./release.sh --publish` also attaches it
-to a GitHub release. It needs a Developer ID Application certificate in the
-keychain and a `notarytool` credential profile; the setup steps are at the top
-of the script. Bump `MARKETING_VERSION` in the project first.
+to a GitHub release. It needs an active Apple Developer Program membership, a Developer ID
+Application certificate in the keychain and a `notarytool` credential profile;
+the setup steps are at the top of the script. Until the membership is renewed
+the install path is the development-signed zip in `dist/`, refreshed with
+`./install.sh` and `ditto -c -k --keepParent` after a Release build. Bump
+`MARKETING_VERSION` in the project first.
 
 ## Tests
 

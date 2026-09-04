@@ -14,26 +14,21 @@ hundred milliseconds. Pause, resume and seek while it reads.
 
 ## Install
 
-Download the latest `Speaky-<version>.dmg` from
-[Releases](https://github.com/sekarasiewicz/speaky/releases), open it and
-drag Speaky to Applications. The app is signed with Developer ID and
-notarized, so it launches without any Gatekeeper warning (Apple silicon only).
-
-To build from source instead:
+Apple silicon only. No Xcode or checkout needed; paste into Terminal:
 
 ```sh
-git clone git@github.com:sekarasiewicz/speaky.git
-cd speaky
-./install.sh
+curl -fsSL https://raw.githubusercontent.com/sekarasiewicz/speaky/main/install.sh | bash -s -- --remote
 ```
 
-This builds Release, installs to `/Applications` and launches the app.
+This downloads the prebuilt app from `dist/Speaky.zip`, installs it to
+`/Applications` and launches it. The app is signed with a development
+certificate and not notarized, which is why a script does the install: it
+strips the quarantine attribute, and without that Gatekeeper reports the app
+as damaged. If you unzip it by hand instead, run
+`xattr -dr com.apple.quarantine Speaky.app` first.
 
-Without Xcode, `./install.sh --prebuilt` installs the app committed in
-`dist/Speaky.zip`. That copy is signed with a development certificate and
-not notarized; the script strips the quarantine attribute before launching,
-and if you unzip it by hand run `xattr -dr com.apple.quarantine Speaky.app`
-first or Gatekeeper reports the app as damaged.
+From a checkout, `./install.sh --prebuilt` does the same without the
+download, and plain `./install.sh` builds Release from source with Xcode.
 
 Then:
 
